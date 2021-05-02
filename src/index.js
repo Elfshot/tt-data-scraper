@@ -57,7 +57,7 @@ async function writeUsers(users={Type: Object}) {
             var old = await Model.findOne({ vrpId: id }).exec();
             if (old) await Model.findOneAndUpdate({ _id: old._id }, { userName: name, countFound: old.countFound + 1 , lastFound: date}, {useFindAndModify: false}, 
                 ((err, result) => { 
-                    console.log(err ? err : result);
+                    if (err) console.log(err);
                     if (i+1 == playerIds.length) db.disconnect(() => { console.log("disconnected") });
                 })
             );
@@ -70,8 +70,8 @@ async function writeUsers(users={Type: Object}) {
                     lastFound: date,
                 })
                 await userModel.save((err, result) => { 
-                console.log(err ? err : result);
-                if (i+1 == playerIds.length) db.disconnect(() => { console.log("disconnected") });
+                    if (err) console.log(err);
+                    if (i+1 == playerIds.length) db.disconnect(() => { console.log("disconnected") });
             })};
         }
     }catch(e){ console.log(e); return; };
@@ -98,8 +98,18 @@ async function reqData() {
 
 
 
-
-
+function keepAlive() {
+    try {
+        await axios.get('https://elfshot-tt-api-proxy.herokuapp.com/')
+        await axios.get('https://tt-data-scraper.herokuapp.com/')
+        console.log('anti-afk');
+    } catch(e){}
+    
+    setTimeout(() => {
+        keepAlive();
+    }, ((1000 * 60) * 5) );
+}
+keepAlive();
 
 
 
