@@ -1,5 +1,6 @@
 const db = require('mongoose');
 const axios = require('axios');
+const express = require('express');
 require('dotenv').config();
 const tycoonServers= [
     'http://server.tycoon.community:30120/status',
@@ -86,3 +87,22 @@ async function reqData() {
     });
 }
 */
+
+
+
+
+
+
+
+
+
+
+//Heroku Binder --dummy
+express().get('/', (req, res) => {
+    res.json({
+        message: 'Hola'
+    });
+});
+express().listen(process.env.PORT, () => {
+    console.log(`Listening: http://localhost:${process.env.PORT}`);
+});
