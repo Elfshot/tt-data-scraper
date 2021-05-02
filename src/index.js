@@ -57,8 +57,7 @@ async function writeUsers(users={Type: Object}) {
             var old = await Model.findOne({ vrpId: id }).exec();
             if (old) await Model.findOneAndUpdate({ _id: old._id }, { userName: name, countFound: old.countFound + 1 , lastFound: date}, {useFindAndModify: false}, 
                 ((err, result) => { 
-                    //if (err) console.log(err);
-                    console.log(err ? err: result)
+                    if (err) console.log(err);
                     if (i+1 == playerIds.length) db.disconnect(() => { console.log("disconnected") });
                 })
             );
@@ -71,8 +70,7 @@ async function writeUsers(users={Type: Object}) {
                     lastFound: date,
                 })
                 await userModel.save((err, result) => { 
-                    //if (err) console.log(err);
-                    console.log(err ? err: result)
+                    if (err) console.log(err);
                     if (i+1 == playerIds.length) db.disconnect(() => { console.log("disconnected") });
             })};
         }
