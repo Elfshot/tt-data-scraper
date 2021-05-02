@@ -19,6 +19,9 @@ const tycoonServers= [
 const userSchema = new db.Schema ({
     vrpId: {type: String},
     userName: {type: String},
+    countFound: {type: Number},
+    firstFound: {type: Date},
+    lastFound: {type: Date},
 });
 
 async function reqUsers() {
@@ -49,22 +52,26 @@ async function writeUsers(users={Type: Object}) {
         for (let i = 0; i < playerIds.length; i++) {
             var id = playerIds[i];
             var name = users[playerIds[i]];
-            const userModel = new Model({
-                vrpId: id,
-                userName: name,
-            })
-            
+
             var old = await Model.findOne({ vrpId: id }).exec();
-            if (old) await Model.findOneAndUpdate({ _id: old._id }, { userName: name }, {useFindAndModify: false}, 
+            if (old) await Model.findOneAndUpdate({ _id: old._id }, { userName: name, countFound: old.countFound + 1 , lastFound: new Date()}, {useFindAndModify: false}, 
                 ((err, result) => { 
                     console.log(err ? err : result);
                     if (i+1 == playerIds.length) db.disconnect(() => { console.log("disconnected") });
                 })
             );
-            if (!old) await userModel.save((err, result) => { 
+            if (!old) {
+                var userModel = new Model({
+                    vrpId: id,
+                    userName: name,
+                    countFound: 1,
+                    firstFound: new Date(),
+                    lastFound: new Date(),
+                })
+                await userModel.save((err, result) => { 
                 console.log(err ? err : result);
                 if (i+1 == playerIds.length) db.disconnect(() => { console.log("disconnected") });
-            });
+            })};
         }
     }catch(e){ console.log(e); return; };
 }
@@ -73,7 +80,7 @@ async function main() {
     await writeUsers(await reqUsers());
     setTimeout(() => {
         main();
-    }, ((1000 * 60) * 5) );
+    }, ((1000 * 60) * 2) );
 };
 
 main();
