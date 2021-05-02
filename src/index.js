@@ -47,6 +47,7 @@ async function writeUsers(users={Type: Object}) {
     try {
         if (!users) return;
         await db.connect(process.env.DBLINK, { useNewUrlParser: true, useUnifiedTopology: true }, () => { console.log("connected") });
+        const date = new Date();
         const Model = db.model('users', userSchema);
         playerIds = Object.keys(users);
         for (let i = 0; i < playerIds.length; i++) {
@@ -54,7 +55,7 @@ async function writeUsers(users={Type: Object}) {
             var name = users[playerIds[i]];
 
             var old = await Model.findOne({ vrpId: id }).exec();
-            if (old) await Model.findOneAndUpdate({ _id: old._id }, { userName: name, countFound: old.countFound + 1 , lastFound: new Date()}, {useFindAndModify: false}, 
+            if (old) await Model.findOneAndUpdate({ _id: old._id }, { userName: name, countFound: old.countFound + 1 , lastFound: date}, {useFindAndModify: false}, 
                 ((err, result) => { 
                     console.log(err ? err : result);
                     if (i+1 == playerIds.length) db.disconnect(() => { console.log("disconnected") });
@@ -65,8 +66,8 @@ async function writeUsers(users={Type: Object}) {
                     vrpId: id,
                     userName: name,
                     countFound: 1,
-                    firstFound: new Date(),
-                    lastFound: new Date(),
+                    firstFound: date,
+                    lastFound: date,
                 })
                 await userModel.save((err, result) => { 
                 console.log(err ? err : result);
