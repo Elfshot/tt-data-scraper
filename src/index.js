@@ -84,8 +84,6 @@ async function main() {
     }, ((1000 * 60) * 2) );
 };
 
-main();
-
 // Leave this on the side for when I'm really making big monies for keys
 /*
 async function reqData() {
@@ -109,10 +107,6 @@ async function keepAlive() {
         keepAlive();
     }, ((1000 * 60) * 5) );
 }
-keepAlive();
-
-
-
 
 
 //Heroku Binder --dummy
@@ -123,4 +117,6 @@ express().get('/', (req, res) => {
 });
 express().listen(process.env.PORT, () => {
     console.log(`Listening: http://localhost:${process.env.PORT}`);
+    main();
+    keepAlive();
 });
