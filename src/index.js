@@ -98,7 +98,6 @@ async function reqData() {
 
 async function keepAlive() {
     try {
-        await axios.get('https://elfshot-tt-api-proxy.herokuapp.com/')
         await axios.get('https://tt-data-scraper.herokuapp.com/')
         console.log('anti-afk');
     } catch(e){}
