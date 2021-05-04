@@ -33,13 +33,13 @@ async function reqUsers() {
                     baseURL: tycoonServers[i],
                 });
                 var { data: { players } } = await TT('/players.json');
-                //console.log(tycoonServers[i])
+                console.log(tycoonServers[i])
                 
                 for (let ii = 0; ii < players.length; ii++) {
                     //console.log(players[ii][2], players[ii][0]);
                     playersObj[players[ii][2]] = players[ii][0];
                 }
-            } catch(e){console.log(e);console.log(baseURL + "is down");};
+            } catch(e){console.log(e);console.log(tycoonServers[i] + "is down");};
         }
         //console.log(playersObj);
         return playersObj
