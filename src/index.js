@@ -29,6 +29,6 @@ app.use('/webhook', webhook);
 
 app.listen(process.env.PORT, () => {
     console.log(`Listening: http://localhost:${process.env.PORT}`);
-    nameScraper();
+    //nameScraper();
     keepAlive();
 });
