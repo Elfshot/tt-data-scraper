@@ -28,16 +28,18 @@ async function reqUsers() {
     try{
         var playersObj = {};
         for (let i = 0; i < tycoonServers.length; i++){
-            var TT = axios.create({
-                baseURL: tycoonServers[i],
-            });
-            var { data: { players } } = await TT('/players.json');
-            //console.log(tycoonServers[i])
-            
-            for (let ii = 0; ii < players.length; ii++) {
-                //console.log(players[ii][2], players[ii][0]);
-                playersObj[players[ii][2]] = players[ii][0];
-            }
+            try {
+                var TT = axios.create({
+                    baseURL: tycoonServers[i],
+                });
+                var { data: { players } } = await TT('/players.json');
+                //console.log(tycoonServers[i])
+                
+                for (let ii = 0; ii < players.length; ii++) {
+                    //console.log(players[ii][2], players[ii][0]);
+                    playersObj[players[ii][2]] = players[ii][0];
+                }
+            } catch(e){console.log(e);console.log(baseURL + "is down");};
         }
         //console.log(playersObj);
         return playersObj
