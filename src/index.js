@@ -25,25 +25,22 @@ const userSchema = new db.Schema ({
 });
 
 async function reqUsers() {
-    try{
-        var playersObj = {};
-        for (let i = 0; i < tycoonServers.length; i++){
-            try {
-                var TT = axios.create({
-                    baseURL: tycoonServers[i],
-                });
-                var { data: { players } } = await TT('/players.json');
-                console.log(tycoonServers[i])
-                
-                for (let ii = 0; ii < players.length; ii++) {
-                    //console.log(players[ii][2], players[ii][0]);
-                    playersObj[players[ii][2]] = players[ii][0];
-                }
-            } catch(e){console.log(e);console.log(tycoonServers[i] + "is down");};
-        }
-        //console.log(playersObj);
-        return playersObj
-    } catch(e){ console.log(e); return; };
+    var playersObj = {};
+    for (let i = 0; i < tycoonServers.length; i++){
+        try {
+            var TT = axios.create({
+                baseURL: tycoonServers[i],
+            });
+            var { data: { players } } = await TT('/players.json');
+            //console.log(tycoonServers[i])
+            
+            for (let ii = 0; ii < players.length; ii++) {
+                playersObj[players[ii][2]] = players[ii][0];
+            }
+        } catch(e){console.log(e);console.log(tycoonServers[i] + " is down");};
+    }
+    //console.log(playersObj);
+    return playersObj
 }
 async function writeUsers(users={Type: Object}) {
     try {
@@ -55,8 +52,10 @@ async function writeUsers(users={Type: Object}) {
         for (let i = 0; i < playerIds.length; i++) {
             var id = playerIds[i];
             var name = users[playerIds[i]];
-
             var old = await Model.findOne({ vrpId: id }).exec();
+            if (old && !name) {
+                name = old.userName
+            } else if (!old && name == null) continue;
             if (old) await Model.findOneAndUpdate({ _id: old._id }, { userName: name, countFound: old.countFound + 1 , lastFound: date}, {useFindAndModify: false}, 
                 ((err, result) => { 
                     if (err) console.log(err);
