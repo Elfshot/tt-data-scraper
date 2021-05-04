@@ -1,0 +1,97 @@
+const db = require('mongoose');
+const axios = require('axios');
+require('dotenv').config();
+const tycoonServers= [
+    'http://server.tycoon.community:30120/status',
+    'http://server.tycoon.community:30122/status',
+    'http://server.tycoon.community:30123/status',
+    'http://server.tycoon.community:30124/status',
+    'http://server.tycoon.community:30125/status',
+    'http://na.tycoon.community:30120/status',
+    'http://na.tycoon.community:30122/status',
+    'http://na.tycoon.community:30123/status',
+    'http://na.tycoon.community:30124/status',
+    'http://na.tycoon.community:30125/status',
+]
+
+
+const userSchema = new db.Schema ({
+    vrpId: {type: String},
+    userName: {type: String},
+    countFound: {type: Number},
+    firstFound: {type: Date},
+    lastFound: {type: Date},
+});
+
+async function reqUsers() {
+    var playersObj = {};
+    for (let i = 0; i < tycoonServers.length; i++){
+        try {
+            var TT = axios.create({
+                baseURL: tycoonServers[i],
+            });
+            var { data: { players } } = await TT('/players.json');
+            //console.log(tycoonServers[i])
+            
+            for (let ii = 0; ii < players.length; ii++) {
+                playersObj[players[ii][2]] = players[ii][0];
+            }
+        } catch(e){console.log(e);console.log(tycoonServers[i] + " is down");};
+    }
+    //console.log(playersObj);
+    return playersObj
+}
+async function writeUsers(users={Type: Object}) {
+    try {
+        if (!users) return;
+        await db.connect(process.env.DBLINK, { useNewUrlParser: true, useUnifiedTopology: true }, () => { console.log("connected") });
+        const date = new Date();
+        const Model = db.model('users', userSchema);
+        playerIds = Object.keys(users);
+        for (let i = 0; i < playerIds.length; i++) {
+            var id = playerIds[i];
+            var name = users[playerIds[i]];
+            var old = await Model.findOne({ vrpId: id }).exec();
+            if (old && !name) {
+                name = old.userName
+            } else if (!old && name == null) continue;
+            if (old) await Model.findOneAndUpdate({ _id: old._id }, { userName: name, countFound: old.countFound + 1 , lastFound: date}, {useFindAndModify: false}, 
+                ((err, result) => { 
+                    if (err) console.log(err);
+                    if (i+1 == playerIds.length) db.disconnect(() => { console.log("disconnected") });
+                })
+            );
+            if (!old) {
+                var userModel = new Model({
+                    vrpId: id,
+                    userName: name,
+                    countFound: 1,
+                    firstFound: date,
+                    lastFound: date,
+                })
+                await userModel.save((err, result) => { 
+                    if (err) console.log(err);
+                    if (i+1 == playerIds.length) db.disconnect(() => { console.log("disconnected") });
+            })};
+        }
+    }catch(e){ console.log(e); return; };
+}
+
+module.exports = async function main() {
+    await writeUsers(await reqUsers());
+    setTimeout(() => {
+        main();
+    }, ((1000 * 60) * 2) );
+};
+
+
+
+// Leave this on the side for when I'm really making big monies for keys
+/*
+async function reqData() {
+    const TT = axios.create({
+        baseURL: server,
+        headers: { 'X-Tycoon-Key': process.env.TYCOON_KEY }
+    });
+}
+*/
