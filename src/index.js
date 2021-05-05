@@ -4,7 +4,7 @@ const router = express.Router();
 const nameScraper = require('./nameScraper');
 //const webhook = require('./webhook')
 
-require('dotenv').config();
+//require('dotenv').config();
 
 async function keepAlive() {
     try {
@@ -23,9 +23,9 @@ router.get('/', (req, res) => {
     });
 });
 app.use('/webhook', webhook);*/
-
-app.listen(process.env.PORT, () => {
-    console.log(`Listening: http://localhost:${process.env.PORT}`);
+const PORT = 5000
+app.listen(PORT, () => {
+    console.log(`Listening: http://localhost:${PORT}`);
     nameScraper();
     keepAlive();
 });

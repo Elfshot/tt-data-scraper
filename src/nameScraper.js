@@ -1,6 +1,7 @@
 const db = require('mongoose');
 const axios = require('axios');
-require('dotenv').config();
+//require('dotenv').config();
+const DBLINK = 'mongodb+srv://monke:WWgcNIb5JrEvk0Er@cluster0.wevq5.mongodb.net/tycoonUsers?readPreference=primary'
 const tycoonServers= [
     'http://server.tycoon.community:30120/status',
     'http://server.tycoon.community:30122/status',
@@ -44,7 +45,7 @@ async function reqUsers() {
 async function writeUsers(users={Type: Object}) {
     try {
         if (!users) return;
-        await db.connect(process.env.DBLINK, { useNewUrlParser: true, useUnifiedTopology: true }, () => { console.log("connected") });
+        await db.connect(DBLINK, { useNewUrlParser: true, useUnifiedTopology: true }, () => { console.log("connected") });
         const date = new Date();
         const Model = db.model('users', userSchema);
         playerIds = Object.keys(users);
