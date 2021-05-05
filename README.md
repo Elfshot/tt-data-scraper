@@ -1,2 +1,1 @@
-"# tt-data-scraper" 
-npm run start
+npm start
