@@ -57,7 +57,7 @@ async function reqUsers() {
                 } catch(e){ console.log(e) };
             } 
     }
-    console.log(playersLst)
+    //console.log(playersLst)
     return playersLst
 }
 
@@ -74,7 +74,7 @@ async function writeUsers() {
         const players = await reqUsers();
     try {
         if (!players) return;
-        await db.connect(DBLINK, { useNewUrlParser: true, useUnifiedTopology: true }, () => { console.log("connected") });
+        await db.connect(DBLINK, { useNewUrlParser: true, useUnifiedTopology: true });
         const date = new Date();
         const Model = db.model('users', playerSchema);
         // for every player
@@ -92,7 +92,7 @@ async function writeUsers() {
                 await Model.findOneAndUpdate({ _id: old._id }, { playerName: playerName, discordId:discordId, countFound: old.countFound + 1 , lastFound: date}, {useFindAndModify: false}, 
                     ((err, result) => { 
                         if (err) console.log(err);
-                        if (i+1 == players.length) db.disconnect(() => { console.log("disconnected") });
+                        if (i+1 == players.length) db.disconnect();
                     })
                 );
             } 
@@ -108,7 +108,7 @@ async function writeUsers() {
                 })
                 await playerModel.save((err, result) => { 
                     if (err) console.log(err);
-                    if (i+1 == players.length) db.disconnect(() => { console.log("disconnected") });
+                    if (i+1 == players.length) db.disconnect();
             })};
         };
     }catch(e){ console.log(e); return; };
