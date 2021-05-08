@@ -29,7 +29,8 @@ async function reqUsers() {
             var surfaceData = players;
             //console.log(tycoonServers[i])
         } catch { console.log(`request(s) to ${tycoonServers[i]} has failed!`) }
-            //loop though all "deepdata" which is just all players
+        if (!deepData || !surfaceData) return;    
+        //loop though all "deepdata" which is just all players
             for (let ii = 0; ii < deepData.length; ii++) {
                     try {
                     // define a bunch of player data
@@ -72,8 +73,8 @@ const playerSchema = new db.Schema ({
 
 async function writeUsers() {
         const players = await reqUsers();
-    try {
         if (!players) return;
+        try {
         await db.connect(DBLINK, { useNewUrlParser: true, useUnifiedTopology: true });
         const date = new Date();
         const Model = db.model('users', playerSchema);
