@@ -32,8 +32,8 @@ const Model = db.model('dxps', dxpSchema);
 const timing = [0,30];
 
 async function reqData() {
-    if (!timing.includes(new Date().getMinutes)) return null;
-    let date = new Date();
+    const date = new Date();
+    if (!timing.includes(date.getMinutes)) return null;
     var product = {date: date};
     serverNames = Object.keys(tycoonServers);
     for (let i = 0; i < serverNames.length; i++) {
@@ -77,11 +77,12 @@ async function dbwrite() {
             db.disconnect();
         });
     } catch(e) { console.log(e) }
+    console.log("write data "+ dxpData.date);
 }
 
 module.exports = async function main() {
     await dbwrite();
     setTimeout(() => {
         main();
-    }, ((1000 * 59) * 1) );
+    }, ((1000 * 60) * 1) );
 };

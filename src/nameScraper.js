@@ -122,5 +122,5 @@ module.exports = async function main() {
     await writeUsers();
     setTimeout(() => {
         main();
-    }, ((1000 * 59) * 1) );
+    }, ((1000 * 60) * 1) );
 };
