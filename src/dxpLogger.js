@@ -1,8 +1,8 @@
 // if server dead, maybe pull from last?
 const db = require('mongoose');
 const axios = require('axios');
-//require('dotenv').config();
-const DBLINK = 'mongodb+srv://danny:MB7ZbMfWWtnf0FYd@main.lt7qs.mongodb.net/test?readPreference=primary'
+require('dotenv').config();
+const DBLINK = process.env.DBLINK;
 const tycoonServers= {
     s1:'http://server.tycoon.community:30120',
     s2:'http://server.tycoon.community:30122',
@@ -15,8 +15,24 @@ const tycoonServers= {
     s9:'http://na.tycoon.community:30124',
     s10:'http://na.tycoon.community:30125',
 }
+const dxpSchema = new db.Schema ({
+    Date: {type: Date},
+    s1: {type: Boolean},
+    s2: {type: Boolean},
+    s3: {type: Boolean},
+    s4: {type: Boolean},
+    s5: {type: Boolean},
+    s6: {type: Boolean},
+    s7: {type: Boolean},
+    s8: {type: Boolean},
+    s9: {type: Boolean},
+    s10: {type: Boolean},
+});
+const Model = db.model('dxps', dxpSchema);
+const timing = [0,30];
 
 async function reqData() {
+    if (!timing.includes(new Date().getMinutes)) return null;
     let date = new Date();
     var product = {date: date};
     serverNames = Object.keys(tycoonServers);
@@ -31,30 +47,12 @@ async function reqData() {
                 let serverStats = data.server;
                 dxpStatus = serverStats.dxp[0];
         } catch(e) {
-            //console.log(`${server} is down.`);
             dxpStatus = false;
         }
-        //console.log(`${server}:`);
-        //console.log(dxpStatus);
         product[serverNames[i]] = dxpStatus;
     }
-    //console.log(product);
     return product;
 }
-const playerSchema = new db.Schema ({
-    Date: {type: Date},
-    s1: {type: Boolean},
-    s2: {type: Boolean},
-    s3: {type: Boolean},
-    s4: {type: Boolean},
-    s5: {type: Boolean},
-    s6: {type: Boolean},
-    s7: {type: Boolean},
-    s8: {type: Boolean},
-    s9: {type: Boolean},
-    s10: {type: Boolean},
-});
-const Model = db.model('dxp', playerSchema);
 
 async function dbwrite() {
     const dxpData = await reqData();
@@ -74,7 +72,6 @@ async function dbwrite() {
             s9: dxpData.s9,
             s10: dxpData.s10,
         });
-        //console.log(playerModel);
         await dxpModel.save((err, result) => { 
             if (err) console.log(err);
             db.disconnect();
@@ -86,5 +83,5 @@ module.exports = async function main() {
     await dbwrite();
     setTimeout(() => {
         main();
-    }, ((1000 * 60) * 25) );
+    }, ((1000 * 59) * 1) );
 };

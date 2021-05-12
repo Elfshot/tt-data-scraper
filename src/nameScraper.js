@@ -1,7 +1,7 @@
 const db = require('mongoose');
 const axios = require('axios');
-//require('dotenv').config();
-const DBLINK = 'mongodb+srv://monke:WWgcNIb5JrEvk0Er@cluster0.wevq5.mongodb.net/tycoonUsers?readPreference=primary'
+require('dotenv').config();
+const DBLINK = process.env.DBLINK;
 const tycoonServers= [
     'http://server.tycoon.community:30120',
     'http://server.tycoon.community:30122',
@@ -16,6 +16,7 @@ const tycoonServers= [
 ]
 
 async function reqUsers() {
+    if (new Date().getMinutes() % 2 != 0) return null;
     var playersLst = [];
     for (let i = 0; i < tycoonServers.length; i++){
         try{
@@ -63,9 +64,9 @@ async function reqUsers() {
 }
 
 const playerSchema = new db.Schema ({
-    vrpId: {type: String},
+    vrpId: {type: Number},
     userName: {type: String},
-    discordId: {type: String},
+    discordId: {type: Number},
     countFound: {type: Number},
     firstFound: {type: Date},
     lastFound: {type: Date},
@@ -82,9 +83,9 @@ async function writeUsers() {
         for (let i = 0; i < players.length; i++) {
             //define the junk for player's data
             let player = players[i];
-            let vrpId = player[0]
+            let vrpId = parseInt(player[0]);
             let playerName = player[1];
-            let discordId = player[2];
+            let discordId = parseInt(player[2]);
             if (playerName == null) continue;
             // duplicate above when null id is found
             var old = await Model.findOne({ vrpId: vrpId }).exec();
@@ -120,5 +121,5 @@ module.exports = async function main() {
     await writeUsers();
     setTimeout(() => {
         main();
-    }, ((1000 * 60) * 2) );
+    }, ((1000 * 59) * 1) );
 };
