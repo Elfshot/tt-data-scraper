@@ -85,7 +85,8 @@ async function writeUsers() {
             let player = players[i];
             let vrpId = parseInt(player[0]);
             let playerName = player[1];
-            let discordId = parseInt(player[2]);
+            let discordId = player[2] ? parseInt(player[2]) : null;
+
             if (playerName == null) continue;
             // duplicate above when null id is found
             var old = await Model.findOne({ vrpId: vrpId }).exec();
