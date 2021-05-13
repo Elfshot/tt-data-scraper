@@ -33,7 +33,7 @@ const timing = [0,30];
 
 async function reqData() {
     const date = new Date();
-    if (!timing.includes(date.getMinutes)) return null;
+    if (!timing.includes(date.getMinutes())) { return null };
     var product = {date: date};
     serverNames = Object.keys(tycoonServers);
     for (let i = 0; i < serverNames.length; i++) {
@@ -77,11 +77,10 @@ async function dbwrite() {
             db.disconnect();
         });
     } catch(e) { console.log(e) }
-    console.log("write data "+ dxpData.date);
 }
 
-module.exports = async function main() {
-    await dbwrite();
+module.exports = function main() {
+    dbwrite();
     setTimeout(() => {
         main();
     }, ((1000 * 60) * 1) );

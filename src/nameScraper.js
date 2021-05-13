@@ -118,8 +118,8 @@ async function writeUsers() {
 }
 
 
-module.exports = async function main() {
-    await writeUsers();
+module.exports = function main() {
+    writeUsers();
     setTimeout(() => {
         main();
     }, ((1000 * 60) * 1) );
