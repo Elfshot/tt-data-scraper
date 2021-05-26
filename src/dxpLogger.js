@@ -4,7 +4,7 @@ const axios = require('axios');
 require('dotenv').config();
 const DBLINK = process.env.DBLINK;
 const tycoonServers= {
-    s1:'http://server.tycoon.community:30120',
+    s1:'http://server.tycoon.community:30169',
     s2:'http://server.tycoon.community:30122',
     s3:'http://server.tycoon.community:30123',
     s4:'http://server.tycoon.community:30124',

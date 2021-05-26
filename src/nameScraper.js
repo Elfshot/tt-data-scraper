@@ -3,7 +3,7 @@ const axios = require('axios');
 require('dotenv').config();
 const DBLINK = process.env.DBLINK;
 const tycoonServers= [
-    'http://server.tycoon.community:30120',
+    'http://server.tycoon.community:30169',
     'http://server.tycoon.community:30122',
     'http://server.tycoon.community:30123',
     'http://server.tycoon.community:30124',
@@ -66,7 +66,7 @@ async function reqUsers() {
 const playerSchema = new db.Schema ({
     vrpId: {type: Number},
     userName: {type: String},
-    discordId: {type: Number},
+    discordId: {type: String},
     countFound: {type: Number},
     firstFound: {type: Date},
     lastFound: {type: Date},
@@ -84,15 +84,15 @@ async function writeUsers() {
             //define the junk for player's data
             let player = players[i];
             let vrpId = parseInt(player[0]);
-            let playerName = player[1];
-            let discordId = player[2] ? parseInt(player[2]) : null;
+            let userName = player[1];
+            let discordId = player[2]
 
-            if (playerName == null) continue;
+            if (userName == null) continue;
             // duplicate above when null id is found
             var old = await Model.findOne({ vrpId: vrpId }).exec();
             // if an old log of this player exists... (update it with current info)
             if (old){
-                await Model.findOneAndUpdate({ _id: old._id }, { playerName: playerName, discordId:discordId, countFound: old.countFound + 1 , lastFound: date}, {useFindAndModify: false}, 
+                await Model.findOneAndUpdate({ _id: old._id }, { userName: userName, discordId: discordId, countFound: old.countFound + 1 , lastFound: date}, {useFindAndModify: false}, 
                     ((err, result) => { 
                         if (err) console.log(err);
                         if (i+1 == players.length) db.disconnect();
@@ -103,7 +103,7 @@ async function writeUsers() {
             else if (!old) {
                 var playerModel = new Model({
                     vrpId: vrpId,
-                    userName: playerName,
+                    userName: userName,
                     discordId: discordId,
                     countFound: 1,
                     firstFound: date,
