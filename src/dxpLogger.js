@@ -4,16 +4,16 @@ const axios = require('axios');
 require('dotenv').config();
 const DBLINK = process.env.DBLINK;
 const tycoonServers= {
-    s1:'http://server.tycoon.community:30169',
-    s2:'http://server.tycoon.community:30122',
-    s3:'http://server.tycoon.community:30123',
-    s4:'http://server.tycoon.community:30124',
-    s5:'http://server.tycoon.community:30125',
-    s6:'http://na.tycoon.community:30120',
-    s7:'http://na.tycoon.community:30122',
-    s8:'http://na.tycoon.community:30123',
-    s9:'http://na.tycoon.community:30124',
-    s10:'http://na.tycoon.community:30125',
+    s1:'https://tycoon-w8r4q4.users.cfx.re',
+    s2:'https://tycoon-2epova.users.cfx.re',
+    s3:'https://tycoon-2epovd.users.cfx.re',
+    s4:'https://tycoon-wdrypd.users.cfx.re',
+    s5:'https://tycoon-njyvop.users.cfx.re',
+    s6:'https://tycoon-2r4588.users.cfx.re',
+    s7:'https://tycoon-npl5oy.users.cfx.re',
+    s8:'https://tycoon-2vzlde.users.cfx.re',
+    s9:'https://tycoon-wmapod.users.cfx.re',
+    s10:'https://tycoon-wxjpge.users.cfx.re',
 }
 const dxpSchema = new db.Schema ({
     Date: {type: Date},
