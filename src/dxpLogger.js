@@ -30,10 +30,17 @@ const dxpSchema = new db.Schema ({
 });
 const Model = db.model('dxps', dxpSchema);
 const timing = [0,30];
-
+var lastTime;
 async function reqData() {
     const date = new Date();
     if (!timing.includes(date.getMinutes())) { return null };
+    if (!lastTime) {
+        lastTime = date;
+    } else if (date.getMinutes() == lastTime.getMinutes() && date.getHours() == lastTime.getHours()) {
+        return null;
+    } else {
+        lastTime = date;
+    }
     var product = {date: date};
     serverNames = Object.keys(tycoonServers);
     for (let i = 0; i < serverNames.length; i++) {
@@ -58,7 +65,6 @@ async function dbwrite() {
     const dxpData = await reqData();
     if (!dxpData) return;
     try {
-        await db.connect(DBLINK, { useNewUrlParser: true, useUnifiedTopology: true });
         var dxpModel = new Model({
             Date: dxpData.date,
             s1: dxpData.s1,
@@ -74,14 +80,20 @@ async function dbwrite() {
         });
         await dxpModel.save((err, result) => { 
             if (err) console.log(err);
-            db.disconnect();
         });
-    } catch(e) { console.log(e) }
+    } catch(e) { 
+        console.log(e) 
+        try {
+            await db.connect(DBLINK, { useNewUrlParser: true, useUnifiedTopology: true });
+        }
+        catch{}
+    }
 }
 
-module.exports = function main() {
+module.exports = async function main() {
+    await db.connect(DBLINK, { useNewUrlParser: true, useUnifiedTopology: true });
     dbwrite();
     setTimeout(() => {
         main();
-    }, ((1000 * 60) * 1) );
+    }, ((1000 * 60) * 0.5) );
 };

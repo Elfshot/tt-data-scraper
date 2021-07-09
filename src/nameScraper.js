@@ -14,53 +14,59 @@ const tycoonServers= [
     'http://na.tycoon.community:30124',
     'http://na.tycoon.community:30125',
 ]
+var lastMin;
 
 async function reqUsers() {
-    if (new Date().getMinutes() % 2 != 0) return null;
-    var playersLst = [];
-    for (let i = 0; i < tycoonServers.length; i++){
-        try{
-            var TT = axios.create({
-                baseURL: tycoonServers[i],
-            });
-            // Make requests for two endpoints which we can draw all needed data from - they need eachother for all data needed to be got
-            var { data } = await TT('/players.json');
-            var deepData = data;
-            var { data: { players } } = await TT('/status/players.json');
-            var surfaceData = players;
-            //console.log(tycoonServers[i])
-        } catch { console.log(`request(s) to ${tycoonServers[i]} has failed!`) }
-        if (!deepData || !surfaceData) return;    
-        //loop though all "deepdata" which is just all players
-            for (let ii = 0; ii < deepData.length; ii++) {
-                    try {
-                    // define a bunch of player data
-                    let currentPlayer = deepData[ii];
-                    let vrpId;
-                    let srcId = currentPlayer.id;
-                    let identifiers = currentPlayer.identifiers;
-                    let playerName = currentPlayer.name;
-                    var discordId = null;
-                    // goes though all the identifiers, if there is discord it will get got
-                    identifiers.forEach(element => {
-                        if (element.includes('discord:')){
-                            //console.log("found discord")
-                            discordId = element.replace('discord:','')
-                        }
-                    });
-                    // goes through the main(surface) data and matches srcId to get vrpId
-                    surfaceData.forEach(element => { if (element[1] == srcId) { vrpId = element[2]; } });
+    let currentDate = new Date().getMinutes();
+    const conditions = ((currentDate % 2 != 0) || (currentDate == lastMin))
+    if (conditions) { return null; }
+    else {
+        lastMin = currentDate
+        var playersLst = [];
+        for (let i = 0; i < tycoonServers.length; i++){
+            try{
+                var TT = axios.create({
+                    baseURL: tycoonServers[i],
+                    timeout: 3500,
+                });
+                // Make requests for two endpoints which we can draw all needed data from - they need eachother for all data needed to be got
+                var { data } = await TT('/players.json');
+                var deepData = data;
+                var { data: { players } } = await TT('/status/players.json');
+                var surfaceData = players;
+                //console.log(tycoonServers[i])
+            } catch { console.log(`request(s) to ${tycoonServers[i]} has failed!`) }
+            if (!deepData || !surfaceData) return;    
+            //loop though all "deepdata" which is just all players
+                for (let ii = 0; ii < deepData.length; ii++) {
+                        try {
+                        // define a bunch of player data
+                        let currentPlayer = deepData[ii];
+                        let vrpId;
+                        let srcId = currentPlayer.id;
+                        let identifiers = currentPlayer.identifiers;
+                        let playerName = currentPlayer.name;
+                        var discordId = null;
+                        // goes though all the identifiers, if there is discord it will get got
+                        identifiers.forEach(element => {
+                            if (element.includes('discord:')){
+                                //console.log("found discord")
+                                discordId = element.replace('discord:','')
+                            }
+                        });
+                        // goes through the main(surface) data and matches srcId to get vrpId
+                        surfaceData.forEach(element => { if (element[1] == srcId) { vrpId = element[2]; } });
 
-                    // if all the wanted data(-discord id) is intact / **there** do the stuff
-                    if (vrpId&&playerName) {
-                        //push all data to the returning list, discord id is allowed to be null as it'll be dealt with in post
-                        playersLst.push([vrpId,playerName,discordId])
-                    }
-                } catch(e){ console.log(e) };
-            } 
+                        // if all the wanted data(-discord id) is intact / **there** do the stuff
+                        if (vrpId&&playerName) {
+                            //push all data to the returning list, discord id is allowed to be null as it'll be dealt with in post
+                            playersLst.push([vrpId,playerName,discordId])
+                        }
+                    } catch(e){ console.log(e) };
+                } 
+        }
+        return playersLst
     }
-    //console.log(playersLst)
-    return playersLst
 }
 
 const playerSchema = new db.Schema ({
@@ -76,7 +82,6 @@ async function writeUsers() {
         const players = await reqUsers();
         if (!players) return;
         try {
-        await db.connect(DBLINK, { useNewUrlParser: true, useUnifiedTopology: true });
         const date = new Date();
         const Model = db.model('users', playerSchema);
         // for every player
@@ -95,7 +100,6 @@ async function writeUsers() {
                 await Model.findOneAndUpdate({ _id: old._id }, { userName: userName, discordId: discordId, countFound: old.countFound + 1 , lastFound: date}, {useFindAndModify: false}, 
                     ((err, result) => { 
                         if (err) console.log(err);
-                        if (i+1 == players.length) db.disconnect();
                     })
                 );
             } 
@@ -111,16 +115,16 @@ async function writeUsers() {
                 })
                 await playerModel.save((err, result) => { 
                     if (err) console.log(err);
-                    if (i+1 == players.length) db.disconnect();
             })};
         };
-    }catch(e){ console.log(e); return; };
+    }catch(e){ console.log(e) };
 }
 
 
-module.exports = function main() {
+module.exports = async function main() {
+    await db.connect(DBLINK, { useNewUrlParser: true, useUnifiedTopology: true });
     writeUsers();
     setTimeout(() => {
         main();
-    }, ((1000 * 60) * 1) );
+    }, ((1000 * 60) * 0.5) );
 };
