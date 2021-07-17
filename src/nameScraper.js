@@ -13,6 +13,7 @@ const tycoonServers= [
     'http://na.tycoon.community:30123',
     'http://na.tycoon.community:30124',
     'http://na.tycoon.community:30125',
+    'https://tycoon-2rkmr8.users.cfx.re'
 ]
 var lastMin;
 
@@ -117,6 +118,7 @@ async function writeUsers() {
                     if (err) console.log(err);
             })};
         };
+        console.log(`Caught ${players.length} players`)
     }catch(e){ console.log(e) };
 }
 
