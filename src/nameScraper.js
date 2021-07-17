@@ -36,7 +36,7 @@ async function reqUsers() {
                 var { data: { players } } = await TT('/status/players.json');
                 var surfaceData = players;
                 //console.log(tycoonServers[i])
-            } catch { console.log(`request(s) to ${tycoonServers[i]} has failed!`) }
+            } catch { if (tycoonServers[i]!='https://tycoon-2rkmr8.users.cfx.re') console.log(`request(s) to ${tycoonServers[i]} has failed!`) }
             if (!deepData || !surfaceData) return;    
             //loop though all "deepdata" which is just all players
                 for (let ii = 0; ii < deepData.length; ii++) {
