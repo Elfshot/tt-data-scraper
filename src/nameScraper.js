@@ -18,7 +18,8 @@ const tycoonServers= [
 var lastMin;
 
 async function reqUsers() {
-    let currentDate = new Date().getMinutes();
+    const date = new Date();
+    let currentDate = date.getMinutes();
     const conditions = ((currentDate % 2 != 0) || (currentDate == lastMin))
     if (conditions) { return null; }
     else {
@@ -28,7 +29,7 @@ async function reqUsers() {
             try{
                 var TT = axios.create({
                     baseURL: tycoonServers[i],
-                    timeout: 3500,
+                    timeout: 5000,
                 });
                 // Make requests for two endpoints which we can draw all needed data from - they need eachother for all data needed to be got
                 var { data } = await TT('/players.json');
@@ -36,7 +37,12 @@ async function reqUsers() {
                 var { data: { players } } = await TT('/status/players.json');
                 var surfaceData = players;
                 //console.log(tycoonServers[i])
-            } catch { if (tycoonServers[i]!='https://tycoon-2rkmr8.users.cfx.re') console.log(`request(s) to ${tycoonServers[i]} has failed!`) }
+            } catch { 
+                if (i != 10) { 
+                    console.log(`request(s) to ${tycoonServers[i]} has failed!`); 
+                } 
+                continue; 
+            }
             if (!deepData || !surfaceData) return;    
             //loop though all "deepdata" which is just all players
                 for (let ii = 0; ii < deepData.length; ii++) {
@@ -66,7 +72,7 @@ async function reqUsers() {
                     } catch(e){ console.log(e) };
                 } 
         }
-        return playersLst
+        return [playersLst, date];
     }
 }
 
@@ -80,10 +86,11 @@ const playerSchema = new db.Schema ({
 });
 
 async function writeUsers() {
-        const players = await reqUsers();
-        if (!players) return;
+        const datass = await reqUsers();
+        if (!datass) return;
         try {
-        const date = new Date();
+        const players = datass[0];
+        const date = datass[1];
         const Model = db.model('users', playerSchema);
         // for every player
         for (let i = 0; i < players.length; i++) {
@@ -118,15 +125,15 @@ async function writeUsers() {
                     if (err) console.log(err);
             })};
         };
-        console.log(`Caught ${players.length} players at ${new Date().toUTCString()}`)
+        console.log(`Caught ${players.length} players at ${date.toUTCString()}`)
     }catch(e){ console.log(e) };
 }
 
 
 module.exports = async function main() {
-    await db.connect(DBLINK, { useNewUrlParser: true, useUnifiedTopology: true });
+    await db.connect(DBLINK, { useNewUrlParser: true, useUnifiedTopology: true, connectTimeoutMS: 30000 });
     writeUsers();
     setTimeout(() => {
         main();
-    }, ((1000 * 60) * 0.5) );
+    }, ((1000 * 0) * 0.5) );
 };
