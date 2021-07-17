@@ -88,6 +88,7 @@ async function dbwrite() {
         }
         catch{}
     }
+    console.log(`Caught dxp at ${new Date().toUTCString()}`)
 }
 
 module.exports = async function main() {

@@ -118,7 +118,7 @@ async function writeUsers() {
                     if (err) console.log(err);
             })};
         };
-        console.log(`Caught ${players.length} players`)
+        console.log(`Caught ${players.length} players at ${new Date().toUTCString()}`)
     }catch(e){ console.log(e) };
 }
 
