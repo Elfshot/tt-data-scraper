@@ -1,8 +1,6 @@
 import db from 'mongoose';
-import { allServers, TtAll, AxiosResponse } from './helpers';
+import { TtAll, AxiosResponse } from './helpers';
 import { PlayerWidget } from './models/PlayerWidget';
-
-const servers = allServers.slice(0,-1);
 
 const dxpSchema = new db.Schema ({
   Date: { type: Date },
@@ -26,7 +24,7 @@ export default async function():Promise<void> {
     const date = new Date();
     const dxps:boolean[] = [];
 
-    const responses:AxiosResponse<PlayerWidget>[] = await TtAll('/status/widget/players.json', servers);
+    const responses:AxiosResponse<PlayerWidget>[] = await TtAll('/status/widget/players.json');
 
     responses.forEach((data) => {
       if (data?.data?.server?.dxp?.[0]) {

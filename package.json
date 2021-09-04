@@ -4,7 +4,9 @@
   "description": "Scrape various data from TT and store it in a DB",
   "main": "index.js",
   "scripts": {
-    "start": "rimraf dist/ && tsc && node dist/index.js"
+    "build": "echo \"Updating packages, Deleting dist/ and re-compiling\" && npm install && rimraf dist/ && tsc",
+    "start": "rimraf dist/ && tsc && node dist/index.js",
+    "startprod": "npm run-script build && node dist/index.js"
   },
   "author": "Elfshot",
   "license": "GPL-3.0-or-later",
