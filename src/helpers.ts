@@ -32,3 +32,17 @@ export async function TtAll(endpoint: string, servers?: string[]): Promise<Axios
   });
   return responses;
 }
+
+export async function getAliveServer(id?: number): Promise<string> {
+  if (id) {
+    return allServers[id - 1][1]; //? will be based on 'real' numbers, e.g. 1 being s1.
+  } 
+  else {
+    const allData = await TtAll('/status/alive');
+    for (let i = 0; i < allData.length; i++) {
+      const data = allData[i];
+      if (data?.status === 204) return data.config.baseURL;
+    }
+    throw new Error('Cannot find an online server!');
+  }
+}
