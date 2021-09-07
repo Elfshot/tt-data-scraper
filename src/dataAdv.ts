@@ -10,7 +10,7 @@ const dataSchema = new db.Schema ({
   date: { type: Date },
 });
 
-const dataModel = db.model('dataAdv', dataSchema);
+const dataModel = db.model('dataadvs', dataSchema);
 
 export default async function(): Promise<void> {
   try {
@@ -26,10 +26,10 @@ export default async function(): Promise<void> {
       });
     });
 
-    if (!playersArr?.[0]) return;
+    if (playersArr.length === 0) return;
 
     const aliveServer = await getAliveServer();
-    
+    if (!aliveServer) return;
 
     playersArr.forEach((vrpId, index) => {
       setTimeout((vrpId, aliveServer, date) => {
@@ -40,14 +40,11 @@ export default async function(): Promise<void> {
           },
         }).then(async (res: { data: UserData }) => {
           if (!res?.data?.data) return;
-          console.log(res.data.user_id);
           await dataModel.findOneAndUpdate({ vrpId: res.data.user_id },
             { vrpId: res.data.user_id, data: JSON.stringify(res.data.data), date, },
             { new: true, upsert: true }
           );
-        }).catch((err) => { 
-          console.log(err); 
-        });
+        }).catch();
       }, index * 750, vrpId, aliveServer, date);
     });
 

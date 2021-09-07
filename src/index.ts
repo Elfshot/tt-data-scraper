@@ -11,7 +11,7 @@ db.set('useFindAndModify', false);
 db.connect(process.env.DBLINK, { useNewUrlParser: true, useUnifiedTopology: true }, (error) => {
   if (!error) {
     console.log('Connected to Mongo and Alive');
-    timer.scheduleJob('dxp', '/10 * * * *', dataAdv);
+    timer.scheduleJob('dataAdv', '*/10 * * * *', dataAdv);
     timer.scheduleJob('dxp', '0,30 * * * *', dxp);
     timer.scheduleJob('players', '*/2 * * * *', players);
   } else { console.log(error); process.kill(process.pid); }
