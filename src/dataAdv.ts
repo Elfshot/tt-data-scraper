@@ -44,8 +44,11 @@ export default async function(): Promise<void> {
             { vrpId: res.data.user_id, data: JSON.stringify(res.data.data), date, },
             { new: true, upsert: true }
           );
-        }).catch();
-      }, index * 750, vrpId, aliveServer, date);
+        }).catch( (err) => { 
+          if (err?.isAxiosError && ['423', '412'].includes((err?.code || err?.response?.status).toString())) return;
+          console.error(err); 
+        });
+      }, index * 1000, vrpId, aliveServer, date);
     });
 
 

@@ -14,23 +14,27 @@ export const allServers = serversCombined.map((element) => {
 });
 
 export async function TtAll(endpoint: string, servers?: string[]): Promise<AxiosResponse<any>[]>{
-  const sersRes:AxiosPromise[] = [];
+  try {
+    const sersRes:AxiosPromise[] = [];
 
-  (servers || allServers).forEach(server => {
-    sersRes.push(axios.get(endpoint, { baseURL: server, 
-      timeout: 4000 }).catch(() => { return undefined; }));
-  });
+    (servers || allServers).forEach(server => {
+      sersRes.push(axios.get(endpoint, { baseURL: server, 
+        timeout: 4000 }).catch(() => { return undefined; }));
+    });
 
-  const data = await Promise.allSettled(sersRes);
+    const data = await Promise.allSettled(sersRes);
 
-  const responses:AxiosResponse<any>[] = [];
+    const responses:AxiosResponse<any>[] = [];
 
-  data.forEach((res) => {
-    if (res.status === 'fulfilled') {
-      responses.push((res as unknown as PromiseFulfilledResult<any> | null)?.value);
-    } else responses.push(undefined);
-  });
-  return responses;
+    data.forEach((res) => {
+      if (res.status === 'fulfilled') {
+        responses.push((res as unknown as PromiseFulfilledResult<any> | null)?.value);
+      } else responses.push(undefined);
+    });
+    return responses;
+  } catch(err) {
+    console.error(err);
+  }
 }
 
 export async function getAliveServer(id?: number): Promise<string> {
