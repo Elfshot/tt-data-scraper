@@ -9,11 +9,6 @@ const dxpSchema = new db.Schema ({
   s3: { type: Boolean },
   s4: { type: Boolean },
   s5: { type: Boolean },
-  s6: { type: Boolean },
-  s7: { type: Boolean },
-  s8: { type: Boolean },
-  s9: { type: Boolean },
-  s10: { type: Boolean },
 });
 
 const Model = db.model('dxps', dxpSchema);
@@ -34,11 +29,10 @@ export default async function():Promise<void> {
 
     const final = {
       Date: date,
-      s1: dxps[0], s2: dxps[1], s3: dxps[2], s4: dxps[3], s5: dxps[4], s6: dxps[5], s7: dxps[6], 
-      s8: dxps[7], s9: dxps[8], s10: dxps[9],
+      s1: dxps[0], s2: dxps[1], s3: dxps[2], s4: dxps[3], s5: dxps[4],
     };
     await Model.replaceOne({ Date: date }, final, { upsert: true, omitUndefined: true, });
   
     console.log(`Caught DXP at ${date.toString()}`);
-  } catch (err) { console.log(err); }
+  } catch (err) { console.error(err); }
 }

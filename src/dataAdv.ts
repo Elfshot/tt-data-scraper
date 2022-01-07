@@ -6,7 +6,7 @@ import { UserData } from './models/UserData';
 
 const dataSchema = new db.Schema ({
   vrpId: { type: Number },
-  data: { type: String },
+  data: { type: Object },
   date: { type: Date },
 });
 
@@ -40,13 +40,24 @@ export default async function(): Promise<void> {
           },
         }).then(async (res: { data: UserData }) => {
           if (!res?.data?.data) return;
-          await dataModel.findOneAndUpdate({ vrpId: res.data.user_id },
-            { vrpId: res.data.user_id, data: JSON.stringify(res.data.data), date, },
+          const data = res.data.data;
+          const vrpId = res.data.user_id;
+          
+          /*Object.keys(data.inventory).forEach((itemName) => {
+            if (itemName.includes('.')) {
+              const item = data.inventory[itemName];
+              delete data.inventory[itemName];
+              data.inventory[itemName.replace('.', '\u002e')] = item;
+            }
+          });*/
+
+          await dataModel.findOneAndUpdate({ vrpId },
+            { vrpId, data, date, },
             { new: true, upsert: true }
           );
         }).catch( (err) => { 
           if (err?.isAxiosError && ['423', '412'].includes((err?.code || err?.response?.status).toString())) return;
-          console.error(err); 
+          //console.error(err); 
         });
       }, index * 1000, vrpId, aliveServer, date);
     });

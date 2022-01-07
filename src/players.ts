@@ -55,7 +55,7 @@ export default async function(): Promise<void> {
           { new: true, omitUndefined: true, upsert: true, setDefaultsOnInsert: true }
         );
       } catch(err) { 
-        console.log(err);
+        console.error(err);
       }
     });
 
