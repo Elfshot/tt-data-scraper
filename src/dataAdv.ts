@@ -59,7 +59,7 @@ export default async function(): Promise<void> {
           if (err?.isAxiosError && ['423', '412'].includes((err?.code || err?.response?.status).toString())) return;
           //console.error(err); 
         });
-      }, index * 1000, vrpId, aliveServer, date);
+      }, index * 500, vrpId, aliveServer, date);
     });
 
 
