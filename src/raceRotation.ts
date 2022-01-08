@@ -1,6 +1,6 @@
 import db from 'mongoose';
 import { TT } from './helpers';
-import { Track } from './models/RaceTrack';
+import { Track as OgTrack } from './models/RaceTrack';
 
 const schema = new db.Schema ({
   class: { type: String },
@@ -13,8 +13,12 @@ const schema = new db.Schema ({
     time: { type: Number },
     vehicle: { type: String },
   },
+  timestamp: { type: Date },
 });
 
+interface Track extends OgTrack {
+  timestamp: Date,
+}
 const Model = db.model('raceTracks', schema, 'racetracks');
 
 
@@ -35,7 +39,8 @@ export default async function():Promise<void> {
             name: track.wr.name,
             time: track.wr.time,
             vehicle: track.wr.vehicle,
-          }
+          },
+          timestamp: date,
         };
         await Model.replaceOne({ index: track.index }, final, { upsert: true, });
       } catch(err) {
