@@ -7,6 +7,12 @@ interface playerData {
   name: string;
   idents?: string[];
   discordId?: string;
+  steam?: string,
+  license?: string,
+  license2?: string,
+  xbl?: string,
+  live?: string,
+  fivem?: string,
 }
 
 export default async function(): Promise<void> {
@@ -42,16 +48,34 @@ export default async function(): Promise<void> {
       countFound: { type: Number, default: 0 },
       firstFound: { type: Date, default: date },
       lastFound: { type: Date },
+      identifiers: {
+        steam: { type: String },
+        license: { type: String },
+        license2: { type: String },
+        xbl: { type: String },
+        live: { type: String },
+        fivem: { type: String },
+      }
     });
 
     const playersModel = db.model('users', playerSchema);
 
     playersArr.forEach(async (player, index) => {
       try {
-        const discordId = player.idents.find((id) => { return id.includes('discord:'); })?.split(':')[1];
-        player.discordId = discordId; delete playersArr[index].idents;
+        player.discordId = player.idents.find((id) => { return id.includes('discord:'); })?.split(':')[1];
+        player.steam = player.idents.find((id) => { return id.includes('steam:'); })?.split(':')[1];
+        player.license = player.idents.find((id) => { return id.includes('license:'); })?.split(':')[1];
+        player.license2 = player.idents.find((id) => { return id.includes('license2:'); })?.split(':')[1];
+        player.live = player.idents.find((id) => { return id.includes('live:'); })?.split(':')[1];
+        player.fivem = player.idents.find((id) => { return id.includes('fivem:'); })?.split(':')[1];
+        delete playersArr[index].idents;
         await playersModel.findOneAndUpdate({ vrpId: player.id },
-          { userName: player.name, discordId: player.discordId, lastFound: date, $inc: { countFound: 1 } },
+          { userName: player.name, discordId: player.discordId, lastFound: date, $inc: { countFound: 1 },
+            identifiers: {
+              steam: player.steam, license: player.license, license2: player.license2,
+              xbl: player.xbl, live: player.live, fivem: player.fivem
+            }
+          },
           { new: true, omitUndefined: true, upsert: true, setDefaultsOnInsert: true }
         );
       } catch(err) { 
