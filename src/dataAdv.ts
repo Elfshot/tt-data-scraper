@@ -12,6 +12,17 @@ const dataSchema = new db.Schema ({
 
 const dataModel = db.model('dataadvs', dataSchema);
 
+const itemSchema = new db.Schema ({
+  id: { type: String },
+  name: { type: String },
+  weight: { type: String },
+});
+
+
+const itemModel = db.model('itemsData', itemSchema);
+
+let itemsRunnable = 0;
+
 export default async function(): Promise<void> {
   try {
     const date = new Date();
@@ -42,7 +53,20 @@ export default async function(): Promise<void> {
           if (!res?.data?.data) return;
           const data = res.data.data;
           const vrpId = res.data.user_id;
-          
+
+          if (itemsRunnable === 2) {
+            const inv = res.data.data.inventory;
+
+            Object.keys(inv).forEach(async (itemId) => {
+              const item = inv[itemId];
+
+              await itemModel.findOneAndUpdate({ id: itemId },
+                { id: itemId, name: item.name, weight: item.weight },
+                { new: true, upsert: true },
+              );
+            });
+          }
+
           /*Object.keys(data.inventory).forEach((itemName) => {
             if (itemName.includes('.')) {
               const item = data.inventory[itemName];
@@ -60,6 +84,8 @@ export default async function(): Promise<void> {
           //console.error(err); 
         });
       }, index * 500, vrpId, aliveServer, date);
+
+      itemsRunnable < 3? itemsRunnable++: itemsRunnable = 0;
     });
 
 
