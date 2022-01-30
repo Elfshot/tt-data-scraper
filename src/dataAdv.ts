@@ -84,12 +84,10 @@ export default async function(): Promise<void> {
           //console.error(err); 
         });
       }, index * 500, vrpId, aliveServer, date);
-
-      itemsRunnable < 3? itemsRunnable++: itemsRunnable = 0;
     });
 
-
-    console.log(`Caught ${playersArr.length} player's data at ${date.toString()}`);
+    console.log(`Caught ${playersArr.length} player's data ${itemsRunnable === 2? 'and items': ''}at ${date.toString()}`);
+    itemsRunnable < 3? itemsRunnable++: itemsRunnable = 0;
   } catch (err) { 
     console.warn(err); 
   }
