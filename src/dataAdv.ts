@@ -22,6 +22,7 @@ const itemSchema = new db.Schema ({
 const itemModel = db.model('itemsData', itemSchema);
 
 let itemsRunnable = 0;
+let itemsIds: string[] = [];
 
 export default async function(): Promise<void> {
   try {
@@ -54,19 +55,21 @@ export default async function(): Promise<void> {
           const data = res.data.data;
           const vrpId = res.data.user_id;
 
-          if (itemsRunnable === 2) {
+          {
             const inv = res.data.data.inventory;
 
+            if (itemsRunnable === 2) itemsIds = [];
             Object.keys(inv).forEach(async (itemId) => {
-              const item = inv[itemId];
+              if (itemsIds.includes(itemId)) return;
 
+              const item = inv[itemId];
+              itemsIds.push(itemId);
               await itemModel.findOneAndUpdate({ id: itemId },
                 { id: itemId, name: item.name, weight: item.weight },
                 { new: true, upsert: true },
               );
             });
           }
-
           /*Object.keys(data.inventory).forEach((itemName) => {
             if (itemName.includes('.')) {
               const item = data.inventory[itemName];
@@ -86,7 +89,7 @@ export default async function(): Promise<void> {
       }, index * 500, vrpId, aliveServer, date);
     });
 
-    console.log(`Caught ${playersArr.length} player's data ${itemsRunnable === 2? 'and items': ''}at ${date.toString()}`);
+    console.log(`Caught ${playersArr.length} player's data ${itemsRunnable === 2? 'and items ': ''}at ${date.toString()}`);
     itemsRunnable < 3? itemsRunnable++: itemsRunnable = 0;
   } catch (err) { 
     console.warn(err); 
