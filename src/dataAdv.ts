@@ -21,8 +21,7 @@ const itemSchema = new db.Schema ({
 
 const itemModel = db.model('itemsData', itemSchema);
 
-let itemsRunnable = 0;
-let itemsIds: string[] = [];
+const itemsIds: string[] = [];
 
 export default async function(): Promise<void> {
   try {
@@ -58,7 +57,6 @@ export default async function(): Promise<void> {
           {
             const inv = res.data.data.inventory;
 
-            if (itemsRunnable === 2) itemsIds = [];
             Object.keys(inv).forEach(async (itemId) => {
               if (itemsIds.includes(itemId)) return;
 
@@ -89,8 +87,7 @@ export default async function(): Promise<void> {
       }, index * 500, vrpId, aliveServer, date);
     });
 
-    console.log(`Caught ${playersArr.length} player's data ${itemsRunnable === 2? 'and items ': ''}at ${date.toString()}`);
-    itemsRunnable < 3? itemsRunnable++: itemsRunnable = 0;
+    console.log(`Caught ${playersArr.length} player's data and items at ${date.toString()}`);
   } catch (err) { 
     console.warn(err); 
   }
