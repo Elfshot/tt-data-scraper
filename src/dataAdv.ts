@@ -40,8 +40,8 @@ export default async function(): Promise<void> {
       if(!serverSta?.data?.players?.[0]) return;
       serverSta.data.players.forEach((player) => {
         playersArr.push(player[2]);
-        if (i == alwaysScrapeBeta[0]) alwaysScrapeBeta[1].forEach((x) => playersArr.push(x));
       });
+      if (i == alwaysScrapeBeta[0]) alwaysScrapeBeta[1].forEach((x) => playersArr.push(x));
     });
 
     if (playersArr.length === 0) return;
