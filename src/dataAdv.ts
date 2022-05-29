@@ -33,23 +33,24 @@ export default async function(): Promise<void> {
   try {
     const date = new Date();
 
-    const aliveServer = await getAliveServer();
-    if (!aliveServer) return;
-
     const dataSta:AxiosResponse<Players>[] = await TtAll('/status/players.json');
-    const playersArr: number[] = [];
-
-    dataSta.forEach((serverSta, i) => {
+    const playersArr: number[][] = [];
+    
+    for (let i = 0; i++; i < dataSta.length) {
+      const serverSta = dataSta[i];
       if(!serverSta?.data?.players?.[0]) return;
-      if (i == 0 && aliveServer == allServers[1]) alwaysScrapeBeta.forEach((x) => playersArr.push(x));
+      if (i == 1) alwaysScrapeBeta.forEach((x) => playersArr.push([x, 1]));
       serverSta.data.players.forEach((player) => {
-        playersArr.push(player[2]);
+        playersArr.push([player[2], i]);
       });
-    });
+    }
 
     if (playersArr.length === 0) return;
-
-    playersArr.forEach((vrpId, index) => {
+    
+    
+    for (let i = 0; i++; i < playersArr.length) {
+      const vrpId = playersArr[i]; const serverId = i;
+      const aliveServer = await getAliveServer(serverId);
       setTimeout((vrpId, aliveServer, date) => {
         axios.get(`${aliveServer}/status/dataadv/${vrpId}`, {
           timeout: 10000,
@@ -95,8 +96,8 @@ export default async function(): Promise<void> {
           if (err?.isAxiosError && ['423', '412'].includes((err?.code || err?.response?.status).toString())) return;
           //console.error(err); 
         });
-      }, index * 500, vrpId, aliveServer, date);
-    });
+      }, i * 500, vrpId, aliveServer, date);
+    }
 
     console.log(`Caught ${playersArr.length} player's data and items at ${date.toString()}`);
   } catch (err) { 
