@@ -2,11 +2,8 @@ import axios, { AxiosPromise, AxiosResponse } from 'axios';
 export { AxiosResponse as AxiosResponse };
 
 const serversCombined: string[][] = [
-  ['https://tycoon-w8r4q4.users.cfx.re','http://server.tycoon.community:30169'],
-  ['https://tycoon-2epova.users.cfx.re','http://server.tycoon.community:30122'],
-  //['https://tycoon-2epovd.users.cfx.re','http://server.tycoon.community:30123'],
-  //['https://tycoon-wdrypd.users.cfx.re','http://server.tycoon.community:30124'],
-  //['https://tycoon-njyvop.users.cfx.re','http://server.tycoon.community:30125'],
+  ['https://tycoon-w8r4q4.users.cfx.re','http://server.tycoon.community:30120'],
+  ['https://tycoon-njyvop.users.cfx.re','http://server.tycoon.community:30121'],
 ];
 
 interface TtOptions {
@@ -17,9 +14,7 @@ interface TtOptions {
   wholeURL?: string;
 }
 
-export const allServers = serversCombined.map((element) => {
-  return element[1];
-});
+export const allServers = serversCombined.map((s) => s[1]);
 
 /**
  * Make a request to TT or any other URL with caching.
