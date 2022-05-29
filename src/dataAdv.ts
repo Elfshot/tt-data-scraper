@@ -59,8 +59,9 @@ export default async function(): Promise<void> {
 
             Object.keys(inv).forEach(async (itemId) => {
               if (itemsIds.includes(itemId)) return;
-
               const item = inv[itemId];
+              if (item?.name?.includes('Invalid Item')) return;
+
               itemsIds.push(itemId);
               await itemModel.findOneAndUpdate({ id: itemId },
                 { id: itemId, name: item.name, weight: item.weight },
