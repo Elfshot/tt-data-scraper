@@ -19,7 +19,11 @@ const itemSchema = new db.Schema ({
   name: { type: String },
   weight: { type: String },
 });
-
+ interface item {
+  id: string;
+  name: string
+  weight: string
+ }
 
 const itemModel = db.model('itemsData', itemSchema);
 
@@ -63,7 +67,10 @@ export default async function(): Promise<void> {
             Object.keys(inv).forEach(async (itemId) => {
               if (itemsIds.includes(itemId)) return;
               const item = inv[itemId];
-              if (item?.name?.includes('Invalid Item')) return;
+              if (item?.name?.includes('Invalid Item')) {
+                const oldInvItem: item = await itemModel.findOne({ id: itemId });
+                if (oldInvItem.name && oldInvItem.name.includes('Invalid Item')) return;
+              }
 
               itemsIds.push(itemId);
               await itemModel.findOneAndUpdate({ id: itemId },
