@@ -1,10 +1,10 @@
 import axios from 'axios';
 import db from 'mongoose';
-import { TtAll, AxiosResponse, getAliveServer, allServers } from './helpers';
+import { TtAll, AxiosResponse, getAliveServer } from './helpers';
 import { Players } from './models/Players';
 import { UserData } from './models/UserData';
 
-const alwaysScrapeBeta = [2,81915, 179108];
+const alwaysScrapeBeta = [2, 3, 81915, 179108];
 
 const dataSchema = new db.Schema ({
   vrpId: { type: Number },
@@ -36,7 +36,7 @@ export default async function(): Promise<void> {
     const dataSta:AxiosResponse<Players>[] = await TtAll('/status/players.json');
     const playersArr: number[][] = [];
     
-    for (let i = 0; i++; i < dataSta.length) {
+    for (let i = 1; i < dataSta.length; i++) {
       const serverSta = dataSta[i];
       if(!serverSta?.data?.players?.[0]) return;
       if (i == 1) alwaysScrapeBeta.forEach((x) => playersArr.push([x, 1]));
@@ -48,9 +48,9 @@ export default async function(): Promise<void> {
     if (playersArr.length === 0) return;
     
     
-    for (let i = 0; i++; i < playersArr.length) {
-      const vrpId = playersArr[i]; const serverId = i;
-      const aliveServer = await getAliveServer(serverId);
+    for (let i = 0; i < playersArr.length; i++) {
+      const vrpId = playersArr[i][0]; const serverId = playersArr[i][1];
+      const aliveServer = await getAliveServer(serverId+1);
       setTimeout((vrpId, aliveServer, date) => {
         axios.get(`${aliveServer}/status/dataadv/${vrpId}`, {
           timeout: 10000,
@@ -64,13 +64,12 @@ export default async function(): Promise<void> {
 
           {
             const inv = res.data.data.inventory;
-
             Object.keys(inv).forEach(async (itemId) => {
               if (itemsIds.includes(itemId)) return;
               const item = inv[itemId];
               if (item?.name?.includes('Invalid Item')) {
                 const oldInvItem: item = await itemModel.findOne({ id: itemId });
-                if (oldInvItem.name && oldInvItem.name.includes('Invalid Item')) return;
+                if (oldInvItem?.name && !oldInvItem.name.includes('Invalid Item')) return;
               }
 
               itemsIds.push(itemId);
@@ -92,9 +91,10 @@ export default async function(): Promise<void> {
             { vrpId, data, date, },
             { new: true, upsert: true }
           );
-        }).catch( (err) => { 
-          if (err?.isAxiosError && ['423', '412'].includes((err?.code || err?.response?.status).toString())) return;
-          //console.error(err); 
+        }).catch(() => { 
+          return;
+          // if (err?.isAxiosError && ['423', '412'].includes((err?.code || err?.response?.status).toString())) return;
+          // console.error(err); 
         });
       }, i * 500, vrpId, aliveServer, date);
     }
