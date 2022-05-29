@@ -1,10 +1,10 @@
 import axios from 'axios';
 import db from 'mongoose';
-import { TtAll, AxiosResponse, getAliveServer } from './helpers';
+import { TtAll, AxiosResponse, getAliveServer, allServers } from './helpers';
 import { Players } from './models/Players';
 import { UserData } from './models/UserData';
 
-const alwaysScrapeBeta: { 0: number, 1: number[] } = [1, [2,81915, 179108]];
+const alwaysScrapeBeta = [2,81915, 179108];
 
 const dataSchema = new db.Schema ({
   vrpId: { type: Number },
@@ -33,21 +33,21 @@ export default async function(): Promise<void> {
   try {
     const date = new Date();
 
+    const aliveServer = await getAliveServer();
+    if (!aliveServer) return;
+
     const dataSta:AxiosResponse<Players>[] = await TtAll('/status/players.json');
     const playersArr: number[] = [];
 
     dataSta.forEach((serverSta, i) => {
       if(!serverSta?.data?.players?.[0]) return;
+      if (i == 0 && aliveServer == allServers[1]) alwaysScrapeBeta.forEach((x) => playersArr.push(x));
       serverSta.data.players.forEach((player) => {
         playersArr.push(player[2]);
       });
-      if (i == alwaysScrapeBeta[0]) alwaysScrapeBeta[1].forEach((x) => playersArr.push(x));
     });
 
     if (playersArr.length === 0) return;
-
-    const aliveServer = await getAliveServer();
-    if (!aliveServer) return;
 
     playersArr.forEach((vrpId, index) => {
       setTimeout((vrpId, aliveServer, date) => {
