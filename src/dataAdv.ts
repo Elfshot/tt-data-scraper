@@ -36,7 +36,7 @@ export default async function(): Promise<void> {
     const dataSta:AxiosResponse<Players>[] = await TtAll('/status/players.json');
     const playersArr: number[][] = [];
     
-    for (let i = 1; i < dataSta.length; i++) {
+    for (let i = 0; i < dataSta.length; i++) {
       const serverSta = dataSta[i];
       if(!serverSta?.data?.players?.[0]) return;
       if (i == 1) alwaysScrapeBeta.forEach((x) => playersArr.push([x, 1]));
